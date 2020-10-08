@@ -1,5 +1,5 @@
 import {useFormik} from 'formik';
-import {StyleSheet, Text, TextInput, View, Image, TouchableOpacity, Alert, ActivityIndicator} from 'react-native';
+import {StyleSheet, Text, TextInput, View, Image, TouchableOpacity, Alert} from 'react-native';
 import * as Yup from 'yup';
 import React, {useEffect, useState} from 'react';
 import auth from '@react-native-firebase/auth';
@@ -7,22 +7,15 @@ import {LoginManager, AccessToken} from 'react-native-fbsdk';
 import {GoogleSignin} from '@react-native-community/google-signin';
 
 const Login = () => {
-
-  const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
 
-  // Handle user state changes
   const onAuthStateChanged = (user) => {
     setUser(user);
     console.log(user);
-    if (initializing) {
-      setInitializing(false);
-    }
   };
 
   useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
+    return auth().onAuthStateChanged(onAuthStateChanged);
   }, []);
 
   const signInWithEmail = (email, pass) => {
@@ -35,15 +28,12 @@ const Login = () => {
       .catch(error => {
         if (error.code === 'auth/email-already-in-use') {
           return Alert.alert('Error', 'That email address is already in use!');
-          // console.log('That email address is already in use!');
         }
         console.error(error.code);
       });
   };
 
   const signInWithFacebook = async () => {
-    // Facebook.initializeAsync(180614155681467, 'pruebas');
-
     const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
 
     if (result.isCancelled) {
@@ -77,10 +67,6 @@ const Login = () => {
       .then((user) => {
         return Alert.alert('Success', `Welcome Google user, ${user.user.displayName}`);
       })
-      .catch(err => {
-          console.log(err);
-        },
-      );
   };
 
   const formik = useFormik({
